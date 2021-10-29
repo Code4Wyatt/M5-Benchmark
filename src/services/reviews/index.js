@@ -23,11 +23,11 @@ const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = dirname(__filename);
 
-const reviewRouter = express.Router();
+const reviewsRouter = express.Router();
 
 // REVIEW post
 
-reviewRouter.post(
+reviewsRouter.post(
   "/media/:id/review",
 //   checkReviewSchema,
 //   checkValidationResult,
@@ -71,7 +71,7 @@ reviewRouter.post(
 
 // REVIEW edit
 
-reviewRouter.put(
+reviewsRouter.put(
   "/media/:id/review",
 //   checkReviewSchema,
 //   checkValidationResult,
@@ -115,7 +115,7 @@ reviewRouter.put(
 
 // REVIEW delete
 
-reviewRouter.delete("/media/:id/review", async (req, res, next) => {
+reviewsRouter.delete("/media/:id/review", async (req, res, next) => {
   try {
     const fileAsBuffer = fs.readFileSync(mediaFilePath);
 
@@ -139,4 +139,4 @@ reviewRouter.delete("/media/:id/review", async (req, res, next) => {
   }
 });
 
-export default reviewRouter;
+export default reviewsRouter;

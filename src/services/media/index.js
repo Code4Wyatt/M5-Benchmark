@@ -28,7 +28,7 @@ const mediaRouter = express.Router();
 
 
 // get all media
-mediaRouter.get("/media", async (req, res, next) => {
+mediaRouter.get("/", async (req, res, next) => {
   try {
     const fileAsBuffer = fs.readFileSync(blogsFilePath);
     const fileAsString = fileAsBuffer.toString();
@@ -43,7 +43,7 @@ mediaRouter.get("/media", async (req, res, next) => {
 
 // post media
 mediaRouter.post(
-  "/media", async (req, res, next) => {
+  "/", async (req, res, next) => {
     try {
       const media = {
         id: uniqid(),
@@ -72,7 +72,7 @@ mediaRouter.post(
 
 
 // get single media
-mediaRouter.get("/media/:id", async (req, res, next) => {
+mediaRouter.get("/:id", async (req, res, next) => {
   try {
     const fileAsBuffer = fs.readFileSync(mediaFilePath);
 
@@ -95,7 +95,7 @@ mediaRouter.get("/media/:id", async (req, res, next) => {
 
 
 //  update media
-mediaRouter.put("/media/:id", async (req, res, next) => {
+mediaRouter.put("/:id", async (req, res, next) => {
   try {
     const fileAsBuffer = fs.readFileSync(mediaFilePath);
 
@@ -132,7 +132,7 @@ mediaRouter.put("/media/:id", async (req, res, next) => {
 // POSTER postage
 
 mediaRouter.post(
-  "/media/:id/poster",
+  "/:id/poster",
   parseFile.single("poster"),
   async (req, res, next) => {
     try {
