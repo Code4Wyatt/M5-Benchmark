@@ -10,14 +10,14 @@ import { fileURLToPath } from "url";
 
 import { parseFile, uploadFile } from "../../utils/upload/index.js";
 
-import {
-  checkBlogPostSchema,
-  checkCommentSchema,
-  checkSearchSchema,
-  checkValidationResult,
-} from "./validation.js";
+// import {
+//   checkBlogPostSchema,
+//   checkCommentSchema,
+//   checkSearchSchema,
+//   checkValidationResult,
+// } from "./validation.js";
 
-// import { blogsFilePath } from "../../utils/upload/index.js";
+import { mediaFilePath } from "../../utils/upload/index.js";
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -49,17 +49,17 @@ mediaRouter.post(
         updatedAt: new Date(),
       };
 
-      const fileAsBuffer = fs.readFileSync(blogsFilePath);
+      const fileAsBuffer = fs.readFileSync(mediaFilePath);
 
       const fileAsString = fileAsBuffer.toString();
 
       const fileAsJSONArray = JSON.parse(fileAsString);
 
-      fileAsJSONArray.push(blog);
+      fileAsJSONArray.push(media);
 
-      fs.writeFileSync(blogsFilePath, JSON.stringify(fileAsJSONArray));
+      fs.writeFileSync(mediaFilePath, JSON.stringify(fileAsJSONArray));
 
-      res.send(blog);
+      res.send(media);
     } catch (error) {
       res.send(500).send({ message: error.message });
     }
@@ -75,11 +75,11 @@ mediaRouter.get("/media/:id", async (req, res, next) => {
 
     const fileAsJSONArray = JSON.parse(fileAsString);
 
-    const blog = fileAsJSONArray.find((blog) => blog.id === req.params.id);
-    if (!blog) {
+    const media = fileAsJSONArray.find((media) => media.id === req.params.id);
+    if (!media) {
       res
         .status(404)
-        .send({ message: `blog with ${req.params.id} is not found!` });
+        .send({ message: `media with ${req.params.id} is not found!` });
     }
     res.send(blog);
   } catch (error) {
@@ -134,74 +134,76 @@ mediaRouter.delete("/:id", async (req, res, next) => {
   }
 });
 
-//  update blog
-mediaRouter.put("/:id", async (req, res, next) => {
+//  update media
+mediaRouter.put("/media/:id", async (req, res, next) => {
   try {
-    const fileAsBuffer = fs.readFileSync(blogsFilePath);
+    const fileAsBuffer = fs.readFileSync(mediaFilePath);
 
     const fileAsString = fileAsBuffer.toString();
 
     let fileAsJSONArray = JSON.parse(fileAsString);
 
-    const blogIndex = fileAsJSONArray.findIndex(
-      (blog) => blog.id === req.params.id
+    const mediaIndex = fileAsJSONArray.findIndex(
+      (media) => media.id === req.params.id
     );
-    if (!blogIndex == -1) {
+    if (!mediaIndex == -1) {
       res
         .status(404)
-        .send({ message: `blog with ${req.params.id} is not found!` });
+        .send({ message: `media with ${req.params.id} is not found!` });
     }
-    const previousblogData = fileAsJSONArray[blogIndex];
-    const changedblog = {
-      ...previousblogData,
+    const previousmediaData = fileAsJSONArray[mediaIndex];
+    const changedmedia = {
+      ...previousmediaData,
       ...req.body,
       updatedAt: new Date(),
       id: req.params.id,
     };
-    fileAsJSONArray[blogIndex] = changedblog;
+    fileAsJSONArray[mediaIndex] = changedmedia;
 
-    fs.writeFileSync(blogsFilePath, JSON.stringify(fileAsJSONArray));
-    res.send(changedblog);
+    fs.writeFileSync(mediaFilePath, JSON.stringify(fileAsJSONArray));
+    res.send(changedmedia);
   } catch (error) {
     res.send(500).send({ message: error.message });
   }
 });
 
+// REVIEW post
+
 mediaRouter.post(
-  "/:id/comment",
-  checkCommentSchema,
-  checkValidationResult,
+  "/media/:id/review",
+//   checkReviewSchema,
+//   checkValidationResult,
   async (req, res, next) => {
     try {
       const { text, userName } = req.body;
-      const comment = { id: uniqid(), text, userName, createdAt: new Date() };
-      const fileAsBuffer = fs.readFileSync(blogsFilePath);
+      const review = { id: uniqid(), comment, rate, elementId, createdAt: new Date() };
+      const fileAsBuffer = fs.readFileSync(mediaFilePath);
 
       const fileAsString = fileAsBuffer.toString();
 
       let fileAsJSONArray = JSON.parse(fileAsString);
 
-      const blogIndex = fileAsJSONArray.findIndex(
-        (blog) => blog.id === req.params.id
+      const mediaIndex = fileAsJSONArray.findIndex(
+        (media) => media.id === req.params.id
       );
-      if (!blogIndex == -1) {
+      if (!mediaIndex == -1) {
         res
           .status(404)
-          .send({ message: `blog with ${req.params.id} is not found!` });
+          .send({ message: `media with ${req.params.id} is not found!` });
       }
-      const previousblogData = fileAsJSONArray[blogIndex];
-      previousblogData.comments = previousblogData.comments || [];
-      const changedblog = {
-        ...previousblogData,
+      const previousmediaData = fileAsJSONArray[mediaIndex];
+      previousmediaData.comments = previousmediaData.comments || [];
+      const changedmedia = {
+        ...previousmediaData,
         ...req.body,
-        comments: [...previousblogData.comments, comment],
+        comments: [...previousmediaData.comments, comment],
         updatedAt: new Date(),
         id: req.params.id,
       };
-      fileAsJSONArray[blogIndex] = changedblog;
+      fileAsJSONArray[mediaIndex] = changedmedia;
 
-      fs.writeFileSync(blogsFilePath, JSON.stringify(fileAsJSONArray));
-      res.send(changedblog);
+      fs.writeFileSync(mediaFilePath, JSON.stringify(fileAsJSONArray));
+      res.send(changedmedia);
     } catch (error) {
       console.log(error);
       res.send(500).send({ message: error.message });
@@ -209,41 +211,43 @@ mediaRouter.post(
   }
 );
 
+// REVIEW edit
+
 mediaRouter.put(
-  "/:id/comment",
-  checkCommentSchema,
-  checkValidationResult,
+  "/media/:id/review",
+//   checkReviewSchema,
+//   checkValidationResult,
   async (req, res, next) => {
     try {
       const { text, userName } = req.body;
-      const comment = { id: uniqid(), text, userName, createdAt: new Date() };
-      const fileAsBuffer = fs.readFileSync(blogsFilePath);
+      const review = { id: uniqid(), comment, rate, elementId, createdAt: new Date() };
+      const fileAsBuffer = fs.readFileSync(mediaFilePath);
 
       const fileAsString = fileAsBuffer.toString();
 
       let fileAsJSONArray = JSON.parse(fileAsString);
 
-      const blogIndex = fileAsJSONArray.findIndex(
-        (blog) => blog.id === req.params.id
+      const mediaIndex = fileAsJSONArray.findIndex(
+        (media) => media.id === req.params.id
       );
-      if (!blogIndex == -1) {
+      if (!mediaIndex == -1) {
         res
           .status(404)
-          .send({ message: `blog with ${req.params.id} is not found!` });
+          .send({ message: `media with ${req.params.id} is not found!` });
       }
-      const previousblogData = fileAsJSONArray[blogIndex];
-      previousblogData.comments = previousblogData.comments || [];
-      const changedblog = {
-        ...previousblogData,
+      const previousmediaData = fileAsJSONArray[mediaIndex];
+      previousmediaData.comments = previousmediaData.comments || [];
+      const changedmedia = {
+        ...previousmediaData,
         ...req.body,
-        comments: [...previousblogData.comments, comment],
+        comments: [...previousmediaData.comments, comment],
         updatedAt: new Date(),
         id: req.params.id,
       };
-      fileAsJSONArray[blogIndex] = changedblog;
+      fileAsJSONArray[mediaIndex] = changedmedia;
 
-      fs.writeFileSync(blogsFilePath, JSON.stringify(fileAsJSONArray));
-      res.send(changedblog);
+      fs.writeFileSync(mediaFilePath, JSON.stringify(fileAsJSONArray));
+      res.send(changedmedia);
     } catch (error) {
       console.log(error);
       res.send(500).send({ message: error.message });
@@ -251,36 +255,38 @@ mediaRouter.put(
   }
 );
 
-mediaRouter.put(
-  "/:id/cover",
-  parseFile.single("cover"),
+// POSTER postage
+
+mediaRouter.post(
+  "/media/:id/poster",
+  parseFile.single("poster"),
   async (req, res, next) => {
     try {
-      const fileAsBuffer = fs.readFileSync(blogsFilePath);
+      const fileAsBuffer = fs.readFileSync(mediaFilePath);
 
       const fileAsString = fileAsBuffer.toString();
 
       let fileAsJSONArray = JSON.parse(fileAsString);
 
-      const blogIndex = fileAsJSONArray.findIndex(
-        (blog) => blog.id === req.params.id
+      const mediaIndex = fileAsJSONArray.findIndex(
+        (media) => media.id === req.params.id
       );
-      if (!blogIndex == -1) {
+      if (!mediaIndex == -1) {
         res
           .status(404)
-          .send({ message: `blog with ${req.params.id} is not found!` });
+          .send({ message: `media with ${req.params.id} is not found!` });
       }
-      const previousblogData = fileAsJSONArray[blogIndex];
-      const changedblog = {
-        ...previousblogData,
+      const previousmediaData = fileAsJSONArray[mediaIndex];
+      const changedmedia = {
+        ...previousmediaData,
         cover: req.file.path,
         updatedAt: new Date(),
         id: req.params.id,
       };
-      fileAsJSONArray[blogIndex] = changedblog;
+      fileAsJSONArray[mediaIndex] = changedmedia;
 
-      fs.writeFileSync(blogsFilePath, JSON.stringify(fileAsJSONArray));
-      res.send(changedblog);
+      fs.writeFileSync(mediaFilePath, JSON.stringify(fileAsJSONArray));
+      res.send(changedmedia);
     } catch (error) {
       res.send(500).send({ message: error.message });
     }
