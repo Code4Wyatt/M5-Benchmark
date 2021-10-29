@@ -64,7 +64,7 @@ mediaRouter.post(
 
       res.send(media);
     } catch (error) {
-      res.send(500).send({ message: error.message });
+      res.send({ message: error.message });
     }
   }
 );
