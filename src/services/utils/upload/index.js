@@ -33,6 +33,11 @@ export const mediaFilePath = join(
   "../../services/media/media.json"
 );
 
+export const reviewsFilePath = join(
+  dirname(fileURLToPath(import.meta.url)),
+  "../../services/reviews/reviews.json"
+);
+
 const publicDirectory = path.join(__dirname, "../../../public");
 
 export const parseFile = multer({ storage });
